@@ -1,0 +1,5 @@
+service:
+  port: ":9999"
+
+database:
+  DataSourceName: "postgres://gilang:masato12@localhost:5432/music_db?sslmode=disable"
