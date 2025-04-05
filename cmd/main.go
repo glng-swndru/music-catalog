@@ -5,6 +5,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/glng-swndru/music-catalog/internal/configs"
+	membershipsHandler "github.com/glng-swndru/music-catalog/internal/handler/memberships"
+	"github.com/glng-swndru/music-catalog/internal/models/memberships"
+	membershipRepo "github.com/glng-swndru/music-catalog/internal/repository/memberships"
+	membershipSvc "github.com/glng-swndru/music-catalog/internal/service/memberships"
 	"github.com/glng-swndru/music-catalog/pkg/internalsql"
 )
 
@@ -30,8 +34,15 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to connect to database: %v\n", err)
 	}
-
+	db.AutoMigrate(&memberships.User{})
 	r := gin.Default()
+
+	membershipRepo := membershipRepo.NewRepository(db)
+
+	membershipSvc := membershipSvc.NewService(cfg, membershipRepo)
+
+	membershipHandler := membershipsHandler.NewHandler(r, membershipSvc)
+	membershipHandler.RegisterRoutes()
 
 	r.Run(cfg.Service.Port)
 }
