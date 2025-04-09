@@ -20,5 +20,4 @@ go.work.sum
 
 # env file
 .env
-
-pg_data
+**/config.yaml

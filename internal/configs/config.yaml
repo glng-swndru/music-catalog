@@ -1,9 +1,0 @@
-service:
-  port: ":9999"
-
-database:
-  DataSourceName: "postgres://gilang:masato12@localhost:5432/music_db?sslmode=disable"
-
-spotifyConfig:
-  clientID: "d8a85218de4f4fa794eedba75b0bfc7d"
-  clientSecret: "64e709dd2396490a8df735647af52ea1"
