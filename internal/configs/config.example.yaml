@@ -1,0 +1,10 @@
+# config.example.yaml
+service:
+  port: ":9999"
+
+database:
+  DataSourceName: "your-db-dsn-here"
+
+spotifyConfig:
+  clientID: "your-client-id"
+  clientSecret: "your-client-secret"

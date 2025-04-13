@@ -3,7 +3,10 @@ package spotify
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"net/url"
+	"strconv"
 
 	"github.com/rs/zerolog/log"
 )
@@ -24,7 +27,7 @@ type SpotifyTracks struct {
 
 type SpotifyTrackObject struct {
 	Album    SpotifyAlbumObject    `json:"album"`
-	Artist   []SpotifyArtistObject `json:"artist"`
+	Artists  []SpotifyArtistObject `json:"artists"`
 	Explicit bool                  `json:"explicit"`
 	Href     string                `json:"href"`
 	ID       string                `json:"id"`
@@ -33,7 +36,7 @@ type SpotifyTrackObject struct {
 
 type SpotifyAlbumObject struct {
 	AlbumType  string              `json:"album_type"`
-	TotalTrack int                 `json:"total_track"`
+	TotalTrack int                 `json:"total_tracks"`
 	Images     []SpotifyAlbumImage `json:"images"`
 	Name       string              `json:"name"`
 }
@@ -48,14 +51,28 @@ type SpotifyArtistObject struct {
 }
 
 func (o *outbond) Search(ctx context.Context, query string, limit, offset int) (*SpotifySearchResponse, error) {
-	url := `https://api.spotify.com/v1/search`
-	req, err := http.NewRequest(http.MethodGet, url, nil)
+
+	params := url.Values{}
+	params.Set("q", query)
+	params.Set("type", "track")
+	params.Set("limit", strconv.Itoa(limit))
+	params.Set("offset", strconv.Itoa(offset))
+
+	basePath := `https://api.spotify.com/v1/search`
+	urlPath := fmt.Sprintf("%s?%s", basePath, params.Encode())
+
+	req, err := http.NewRequest(http.MethodGet, urlPath, nil)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to create search request for Spotify")
 		return nil, err
 	}
 
-	bearerToken := ""
+	accessToken, tokenType, err := o.GetTokenDetails()
+	if err != nil {
+		log.Error().Err(err).Msg("failed to get token details")
+		return nil, err
+	}
+	bearerToken := fmt.Sprintf("%s %s", tokenType, accessToken)
 	req.Header.Set("Authorization", bearerToken)
 
 	resp, err := o.client.Do(req)
