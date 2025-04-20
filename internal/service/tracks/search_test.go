@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/glng-swndru/music-catalog/internal/models/spotify"
+	"github.com/glng-swndru/music-catalog/internal/models/trackactivities"
 	spotifyRepo "github.com/glng-swndru/music-catalog/internal/repository/spotify"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
@@ -16,7 +17,11 @@ func Test_service_Search(t *testing.T) {
 	defer mockCtrl.Finish()
 
 	mockSpotifyOutbound := NewMockSpotifyOutbound(mockCtrl)
+	mockTrackActivityRepo := NewMocktrackActivitiesRepository(mockCtrl)
+
 	next := "https://api.spotify.com/v1/search?offset=10&limit=10&query=bohemian%20rhapsody&type=track&market=ID&locale=en-US,en;q%3D0.9,id;q%3D0.8"
+	isLikedTrue := true
+	isLikedFalse := false
 	type args struct {
 		query     string
 		pageSize  int
@@ -49,6 +54,7 @@ func Test_service_Search(t *testing.T) {
 						Explicit:        false,
 						ID:              "3z8h0TU7ReDPLIbEnYhWZb",
 						Name:            "Bohemian Rhapsody",
+						IsLiked:         &isLikedTrue,
 					},
 					{
 						AlbumType:       "compilation",
@@ -59,6 +65,7 @@ func Test_service_Search(t *testing.T) {
 						Explicit:        false,
 						ID:              "2OBofMJx94NryV2SK8p8Zf",
 						Name:            "Bohemian Rhapsody - Remastered 2011",
+						IsLiked:         &isLikedFalse,
 					},
 				},
 				Total: 26,
@@ -132,6 +139,15 @@ func Test_service_Search(t *testing.T) {
 						},
 					},
 				}, nil)
+
+				mockTrackActivityRepo.EXPECT().GetBulkSpotifyIDs(gomock.Any(), uint(1), []string{"3z8h0TU7ReDPLIbEnYhWZb", "2OBofMJx94NryV2SK8p8Zf"}).Return(map[string]trackactivities.TrackActivity{
+					"3z8h0TU7ReDPLIbEnYhWZb": {
+						IsLiked: &isLikedTrue,
+					},
+					"2OBofMJx94NryV2SK8p8Zf": {
+						IsLiked: &isLikedFalse,
+					},
+				}, nil)
 			},
 		},
 		{
@@ -152,9 +168,10 @@ func Test_service_Search(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockFn(tt.args)
 			s := &service{
-				spotifyOutbound: mockSpotifyOutbound,
+				spotifyOutbound:   mockSpotifyOutbound,
+				trackActivityRepo: mockTrackActivityRepo,
 			}
-			got, err := s.Search(context.Background(), tt.args.query, tt.args.pageSize, tt.args.pageIndex)
+			got, err := s.Search(context.Background(), tt.args.query, tt.args.pageSize, tt.args.pageIndex, 1)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("service.Search() error = %v, wantErr %v", err, tt.wantErr)
 				return

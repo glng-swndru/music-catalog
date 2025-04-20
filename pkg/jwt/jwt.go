@@ -7,7 +7,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func CreateToken(id int64, username, secretKey string) (string, error) {
+func CreateToken(id uint, username, secretKey string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
 		jwt.MapClaims{
 			"id":       id,
@@ -24,7 +24,7 @@ func CreateToken(id int64, username, secretKey string) (string, error) {
 	return tokenSr, nil
 }
 
-func ValidateToken(tokenStr, secretKey string) (int64, string, error) {
+func ValidateToken(tokenStr, secretKey string) (uint, string, error) {
 	key := []byte(secretKey)
 	claims := jwt.MapClaims{}
 
@@ -38,22 +38,22 @@ func ValidateToken(tokenStr, secretKey string) (int64, string, error) {
 	if !token.Valid {
 		return 0, "", errors.New("invalid token")
 	}
-	return int64(claims["id"].(float64)), claims["username"].(string), nil
+	return uint(claims["id"].(float64)), claims["username"].(string), nil
 }
 
-func ValidateTokenWithoutExpiry(tokenStr, secretKey string) (int64, string, error) {
-	key := []byte(secretKey)
-	claims := jwt.MapClaims{}
+// func ValidateTokenWithoutExpiry(tokenStr, secretKey string) (uint, string, error) {
+// 	key := []byte(secretKey)
+// 	claims := jwt.MapClaims{}
 
-	token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
-		return key, nil
-	}, jwt.WithoutClaimsValidation())
-	if err != nil {
-		return 0, "", err
-	}
+// 	token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
+// 		return key, nil
+// 	}, jwt.WithoutClaimsValidation())
+// 	if err != nil {
+// 		return 0, "", err
+// 	}
 
-	if !token.Valid {
-		return 0, "", errors.New("invalid token")
-	}
-	return int64(claims["id"].(float64)), claims["username"].(string), nil
-}
+// 	if !token.Valid {
+// 		return 0, "", errors.New("invalid token")
+// 	}
+// 	return uint(claims["id"].(float64)), claims["username"].(string), nil
+// }

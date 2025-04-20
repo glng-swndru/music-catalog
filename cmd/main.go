@@ -9,8 +9,10 @@ import (
 	membershipsHandler "github.com/glng-swndru/music-catalog/internal/handler/memberships"
 	tracksHandler "github.com/glng-swndru/music-catalog/internal/handler/tracks"
 	"github.com/glng-swndru/music-catalog/internal/models/memberships"
+	"github.com/glng-swndru/music-catalog/internal/models/trackactivities"
 	membershipRepo "github.com/glng-swndru/music-catalog/internal/repository/memberships"
 	"github.com/glng-swndru/music-catalog/internal/repository/spotify"
+	trackactivityRepo "github.com/glng-swndru/music-catalog/internal/repository/trackactivities"
 	membershipSvc "github.com/glng-swndru/music-catalog/internal/service/memberships"
 	"github.com/glng-swndru/music-catalog/internal/service/tracks"
 	"github.com/glng-swndru/music-catalog/pkg/httpclient"
@@ -40,15 +42,18 @@ func main() {
 		log.Fatalf("failed to connect to database: %v\n", err)
 	}
 	db.AutoMigrate(&memberships.User{})
+	db.AutoMigrate(&trackactivities.TrackActivity{})
+
 	r := gin.Default()
 
 	httpClient := httpclient.NewClient(&http.Client{})
 	spotifyOutbond := spotify.NewSpotifyOutbond(cfg, httpClient)
 
 	membershipRepo := membershipRepo.NewRepository(db)
+	trackActivityRepo := trackactivityRepo.NewRepository(db)
 
 	membershipSvc := membershipSvc.NewService(cfg, membershipRepo)
-	trackSvc := tracks.NewService(spotifyOutbond)
+	trackSvc := tracks.NewService(spotifyOutbond, trackActivityRepo)
 
 	membershipHandler := membershipsHandler.NewHandler(r, membershipSvc)
 	membershipHandler.RegisterRoutes()

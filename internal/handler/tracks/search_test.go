@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/glng-swndru/music-catalog/internal/models/spotify"
+	"github.com/glng-swndru/music-catalog/pkg/jwt"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 )
@@ -57,7 +58,7 @@ func TestHandler_Search(t *testing.T) {
 			},
 			wantErr: false,
 			mockFn: func() {
-				mockSvc.EXPECT().Search(gomock.Any(), "bohemian rhapsody", 10, 1).Return(
+				mockSvc.EXPECT().Search(gomock.Any(), "bohemian rhapsody", 10, 1, uint(1)).Return(
 					&spotify.SearchResponse{
 						Limit:  10,
 						Offset: 0,
@@ -93,7 +94,7 @@ func TestHandler_Search(t *testing.T) {
 			expectedBody:       spotify.SearchResponse{},
 			wantErr:            true,
 			mockFn: func() {
-				mockSvc.EXPECT().Search(gomock.Any(), "bohemian rhapsody", 10, 1).Return(nil, assert.AnError)
+				mockSvc.EXPECT().Search(gomock.Any(), "bohemian rhapsody", 10, 1, uint(1)).Return(nil, assert.AnError)
 			},
 		},
 	}
@@ -112,6 +113,10 @@ func TestHandler_Search(t *testing.T) {
 
 			req, err := http.NewRequest(http.MethodGet, endpoint, nil)
 			assert.NoError(t, err)
+			token, err := jwt.CreateToken(1, "username", "")
+			assert.NoError(t, err)
+			req.Header.Set("Authorization", token)
+
 			h.ServeHTTP(w, req)
 
 			assert.Equal(t, tt.expectedStatusCode, w.Code)
