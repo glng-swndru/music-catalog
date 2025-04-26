@@ -8,7 +8,7 @@
 
 - **User Management**: Register, log in, and manage user accounts.
 - **Track Activities**: Like/dislike tracks and save user-specific track activities.
-- **Spotify Integration**: Search for tracks using Spotify's API.
+- **Spotify Integration**: Search for tracks using Spotify's API. Get personalized track recommendations.
 - **Database Integration**: Uses PostgreSQL for data persistence.
 - **RESTful API**: Provides endpoints for client interaction.
 
