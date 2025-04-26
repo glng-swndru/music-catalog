@@ -12,38 +12,36 @@ import (
 	"go.uber.org/mock/gomock"
 )
 
-func Test_service_Search(t *testing.T) {
+func Test_service_GetRecommendation(t *testing.T) {
 	mockCtrl := gomock.NewController(t)
 	defer mockCtrl.Finish()
 
 	mockSpotifyOutbound := NewMockspotifyOutbound(mockCtrl)
-	mockTrackActivityRepo := NewMocktrackActivitiesRepository(mockCtrl)
+	mockTrackActivitiesRepo := NewMocktrackActivitiesRepository(mockCtrl)
 
-	next := "https://api.spotify.com/v1/search?offset=10&limit=10&query=bohemian%20rhapsody&type=track&market=ID&locale=en-US,en;q%3D0.9,id;q%3D0.8"
 	isLikedTrue := true
 	isLikedFalse := false
+
 	type args struct {
-		query     string
-		pageSize  int
-		pageIndex int
+		userID  uint
+		limit   int
+		trackID string
 	}
 	tests := []struct {
 		name    string
 		args    args
-		want    *spotify.SearchResponse
+		want    *spotify.RecommendationResponse
 		wantErr bool
 		mockFn  func(args args)
 	}{
 		{
 			name: "success",
 			args: args{
-				query:     "bohemian rhapsody",
-				pageSize:  10,
-				pageIndex: 1,
+				userID:  1,
+				limit:   10,
+				trackID: "trackID",
 			},
-			want: &spotify.SearchResponse{
-				Limit:  10,
-				Offset: 0,
+			want: &spotify.RecommendationResponse{
 				Items: []spotify.SpotifyTrackObject{
 					{
 						AlbumType:        "album",
@@ -68,18 +66,12 @@ func Test_service_Search(t *testing.T) {
 						IsLiked:          &isLikedFalse,
 					},
 				},
-				Total: 26,
 			},
 			wantErr: false,
 			mockFn: func(args args) {
-				mockSpotifyOutbound.EXPECT().Search(gomock.Any(), args.query, 10, 0).Return(&spotifyRepo.SpotifySearchResponse{
-					Tracks: spotifyRepo.SpotifyTracks{
-						Href:   "https://api.spotify.com/v1/search?offset=0&limit=10&query=bohemian%20rhapsody&type=track&market=ID&locale=en-US,en;q%3D0.9,id;q%3D0.8",
-						Limit:  10,
-						Next:   &next,
-						Offset: 0,
-						Total:  26,
-						Items: []spotifyRepo.SpotifyTrackObject{
+				mockSpotifyOutbound.EXPECT().GetRecommendation(gomock.Any(), 10, "trackID").
+					Return(&spotifyRepo.SpotifyRecommendationResponse{
+						Tracks: []spotifyRepo.SpotifyTrackObject{
 							{
 								Album: spotifyRepo.SpotifyAlbumObject{
 									AlbumType:   "album",
@@ -137,10 +129,9 @@ func Test_service_Search(t *testing.T) {
 								Name:     "Bohemian Rhapsody - Remastered 2011",
 							},
 						},
-					},
-				}, nil)
+					}, nil)
 
-				mockTrackActivityRepo.EXPECT().GetBulkSpotifyIDs(gomock.Any(), uint(1), []string{"3z8h0TU7ReDPLIbEnYhWZb", "2OBofMJx94NryV2SK8p8Zf"}).Return(map[string]trackactivities.TrackActivity{
+				mockTrackActivitiesRepo.EXPECT().GetBulkSpotifyIDs(gomock.Any(), uint(1), []string{"3z8h0TU7ReDPLIbEnYhWZb", "2OBofMJx94NryV2SK8p8Zf"}).Return(map[string]trackactivities.TrackActivity{
 					"3z8h0TU7ReDPLIbEnYhWZb": {
 						IsLiked: &isLikedTrue,
 					},
@@ -151,16 +142,92 @@ func Test_service_Search(t *testing.T) {
 			},
 		},
 		{
-			name: "fail",
+			name: "failed: when get bulk spotify id",
 			args: args{
-				query:     "bohemian rhapsody",
-				pageSize:  10,
-				pageIndex: 1,
+				userID:  1,
+				limit:   10,
+				trackID: "trackID",
 			},
 			want:    nil,
 			wantErr: true,
 			mockFn: func(args args) {
-				mockSpotifyOutbound.EXPECT().Search(gomock.Any(), args.query, 10, 0).Return(nil, assert.AnError)
+				mockSpotifyOutbound.EXPECT().GetRecommendation(gomock.Any(), 10, "trackID").
+					Return(&spotifyRepo.SpotifyRecommendationResponse{
+						Tracks: []spotifyRepo.SpotifyTrackObject{
+							{
+								Album: spotifyRepo.SpotifyAlbumObject{
+									AlbumType:   "album",
+									TotalTracks: 22,
+									Images: []spotifyRepo.SpotifyAlbumImage{
+										{
+											URL: "https://i.scdn.co/image/ab67616d0000b273e8b066f70c206551210d902b",
+										},
+										{
+											URL: "https://i.scdn.co/image/ab67616d00001e02e8b066f70c206551210d902b",
+										},
+										{
+											URL: "https://i.scdn.co/image/ab67616d00004851e8b066f70c206551210d902b",
+										},
+									},
+									Name: "Bohemian Rhapsody (The Original Soundtrack)",
+								},
+								Artists: []spotifyRepo.SpotifyArtistObject{
+									{
+										Href: "https://api.spotify.com/v1/artists/1dfeR4HaWDbWqFHLkxsg1d",
+										Name: "Queen",
+									},
+								},
+								Explicit: false,
+								Href:     "https://api.spotify.com/v1/tracks/3z8h0TU7ReDPLIbEnYhWZb",
+								ID:       "3z8h0TU7ReDPLIbEnYhWZb",
+								Name:     "Bohemian Rhapsody",
+							},
+							{
+								Album: spotifyRepo.SpotifyAlbumObject{
+									AlbumType:   "compilation",
+									TotalTracks: 17,
+									Images: []spotifyRepo.SpotifyAlbumImage{
+										{
+											URL: "https://i.scdn.co/image/ab67616d0000b273bb19d0c22d5709c9d73c8263",
+										},
+										{
+											URL: "https://i.scdn.co/image/ab67616d00001e02bb19d0c22d5709c9d73c8263",
+										},
+										{
+											URL: "https://i.scdn.co/image/ab67616d00004851bb19d0c22d5709c9d73c8263",
+										},
+									},
+									Name: "Greatest Hits (Remastered)",
+								},
+								Artists: []spotifyRepo.SpotifyArtistObject{
+									{
+										Href: "https://api.spotify.com/v1/artists/1dfeR4HaWDbWqFHLkxsg1d",
+										Name: "Queen",
+									},
+								},
+								Explicit: false,
+								Href:     "https://api.spotify.com/v1/tracks/2OBofMJx94NryV2SK8p8Zf",
+								ID:       "2OBofMJx94NryV2SK8p8Zf",
+								Name:     "Bohemian Rhapsody - Remastered 2011",
+							},
+						},
+					}, nil)
+
+				mockTrackActivitiesRepo.EXPECT().GetBulkSpotifyIDs(gomock.Any(), uint(1), []string{"3z8h0TU7ReDPLIbEnYhWZb", "2OBofMJx94NryV2SK8p8Zf"}).Return(nil, assert.AnError)
+			},
+		},
+		{
+			name: "failed: when get recommendation from spotify outbond",
+			args: args{
+				userID:  1,
+				limit:   10,
+				trackID: "trackID",
+			},
+			want:    nil,
+			wantErr: true,
+			mockFn: func(args args) {
+				mockSpotifyOutbound.EXPECT().GetRecommendation(gomock.Any(), 10, "trackID").
+					Return(nil, assert.AnError)
 			},
 		},
 	}
@@ -169,15 +236,15 @@ func Test_service_Search(t *testing.T) {
 			tt.mockFn(tt.args)
 			s := &service{
 				spotifyOutbound:     mockSpotifyOutbound,
-				trackActivitiesRepo: mockTrackActivityRepo,
+				trackActivitiesRepo: mockTrackActivitiesRepo,
 			}
-			got, err := s.Search(context.Background(), tt.args.query, tt.args.pageSize, tt.args.pageIndex, 1)
+			got, err := s.GetRecommendation(context.Background(), tt.args.userID, tt.args.limit, tt.args.trackID)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("service.Search() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("service.GetRecommendation() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("service.Search() = %v, want %v", got, tt.want)
+				t.Errorf("service.GetRecommendation() = %v, want %v", got, tt.want)
 			}
 		})
 	}

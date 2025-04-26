@@ -57,7 +57,7 @@ func TestHandler_SignUp(t *testing.T) {
 				Engine:  api,
 				service: mockSvc,
 			}
-			h.RegisterRoutes()
+			h.RegisterRoute()
 			w := httptest.NewRecorder()
 
 			endpoint := `/memberships/sign_up`

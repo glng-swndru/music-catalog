@@ -15,6 +15,10 @@ type SpotifySearchResponse struct {
 	Tracks SpotifyTracks `json:"tracks"`
 }
 
+type SpotifyRecommendationResponse struct {
+	Tracks []SpotifyTrackObject `json:"tracks"`
+}
+
 type SpotifyTracks struct {
 	Href     string               `json:"href"`
 	Limit    int                  `json:"limit"`
@@ -35,10 +39,10 @@ type SpotifyTrackObject struct {
 }
 
 type SpotifyAlbumObject struct {
-	AlbumType  string              `json:"album_type"`
-	TotalTrack int                 `json:"total_tracks"`
-	Images     []SpotifyAlbumImage `json:"images"`
-	Name       string              `json:"name"`
+	AlbumType   string              `json:"album_type"`
+	TotalTracks int                 `json:"total_tracks"`
+	Images      []SpotifyAlbumImage `json:"images"`
+	Name        string              `json:"name"`
 }
 
 type SpotifyAlbumImage struct {
@@ -50,7 +54,7 @@ type SpotifyArtistObject struct {
 	Name string `json:"name"`
 }
 
-func (o *outbond) Search(ctx context.Context, query string, limit, offset int) (*SpotifySearchResponse, error) {
+func (o *outbound) Search(ctx context.Context, query string, limit, offset int) (*SpotifySearchResponse, error) {
 
 	params := url.Values{}
 	params.Set("q", query)
@@ -63,7 +67,7 @@ func (o *outbond) Search(ctx context.Context, query string, limit, offset int) (
 
 	req, err := http.NewRequest(http.MethodGet, urlPath, nil)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to create search request for Spotify")
+		log.Error().Err(err).Msg("error create search request for spotify")
 		return nil, err
 	}
 

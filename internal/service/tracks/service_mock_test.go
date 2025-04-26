@@ -18,32 +18,47 @@ import (
 	gomock "go.uber.org/mock/gomock"
 )
 
-// MockSpotifyOutbound is a mock of SpotifyOutbound interface.
-type MockSpotifyOutbound struct {
+// MockspotifyOutbound is a mock of spotifyOutbound interface.
+type MockspotifyOutbound struct {
 	ctrl     *gomock.Controller
-	recorder *MockSpotifyOutboundMockRecorder
+	recorder *MockspotifyOutboundMockRecorder
 	isgomock struct{}
 }
 
-// MockSpotifyOutboundMockRecorder is the mock recorder for MockSpotifyOutbound.
-type MockSpotifyOutboundMockRecorder struct {
-	mock *MockSpotifyOutbound
+// MockspotifyOutboundMockRecorder is the mock recorder for MockspotifyOutbound.
+type MockspotifyOutboundMockRecorder struct {
+	mock *MockspotifyOutbound
 }
 
-// NewMockSpotifyOutbound creates a new mock instance.
-func NewMockSpotifyOutbound(ctrl *gomock.Controller) *MockSpotifyOutbound {
-	mock := &MockSpotifyOutbound{ctrl: ctrl}
-	mock.recorder = &MockSpotifyOutboundMockRecorder{mock}
+// NewMockspotifyOutbound creates a new mock instance.
+func NewMockspotifyOutbound(ctrl *gomock.Controller) *MockspotifyOutbound {
+	mock := &MockspotifyOutbound{ctrl: ctrl}
+	mock.recorder = &MockspotifyOutboundMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockSpotifyOutbound) EXPECT() *MockSpotifyOutboundMockRecorder {
+func (m *MockspotifyOutbound) EXPECT() *MockspotifyOutboundMockRecorder {
 	return m.recorder
 }
 
+// GetRecommendation mocks base method.
+func (m *MockspotifyOutbound) GetRecommendation(ctx context.Context, limit int, trackID string) (*spotify.SpotifyRecommendationResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetRecommendation", ctx, limit, trackID)
+	ret0, _ := ret[0].(*spotify.SpotifyRecommendationResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetRecommendation indicates an expected call of GetRecommendation.
+func (mr *MockspotifyOutboundMockRecorder) GetRecommendation(ctx, limit, trackID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRecommendation", reflect.TypeOf((*MockspotifyOutbound)(nil).GetRecommendation), ctx, limit, trackID)
+}
+
 // Search mocks base method.
-func (m *MockSpotifyOutbound) Search(ctx context.Context, query string, limit, offset int) (*spotify.SpotifySearchResponse, error) {
+func (m *MockspotifyOutbound) Search(ctx context.Context, query string, limit, offset int) (*spotify.SpotifySearchResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Search", ctx, query, limit, offset)
 	ret0, _ := ret[0].(*spotify.SpotifySearchResponse)
@@ -52,9 +67,9 @@ func (m *MockSpotifyOutbound) Search(ctx context.Context, query string, limit, o
 }
 
 // Search indicates an expected call of Search.
-func (mr *MockSpotifyOutboundMockRecorder) Search(ctx, query, limit, offset any) *gomock.Call {
+func (mr *MockspotifyOutboundMockRecorder) Search(ctx, query, limit, offset any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Search", reflect.TypeOf((*MockSpotifyOutbound)(nil).Search), ctx, query, limit, offset)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Search", reflect.TypeOf((*MockspotifyOutbound)(nil).Search), ctx, query, limit, offset)
 }
 
 // MocktrackActivitiesRepository is a mock of trackActivitiesRepository interface.

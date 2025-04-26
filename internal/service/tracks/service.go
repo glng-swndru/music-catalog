@@ -8,8 +8,9 @@ import (
 )
 
 //go:generate mockgen -source=service.go -destination=service_mock_test.go -package=tracks
-type SpotifyOutbound interface {
+type spotifyOutbound interface {
 	Search(ctx context.Context, query string, limit, offset int) (*spotify.SpotifySearchResponse, error)
+	GetRecommendation(ctx context.Context, limit int, trackID string) (*spotify.SpotifyRecommendationResponse, error)
 }
 
 type trackActivitiesRepository interface {
@@ -20,10 +21,10 @@ type trackActivitiesRepository interface {
 }
 
 type service struct {
-	spotifyOutbound   SpotifyOutbound
-	trackActivityRepo trackActivitiesRepository
+	spotifyOutbound     spotifyOutbound
+	trackActivitiesRepo trackActivitiesRepository
 }
 
-func NewService(SpotifyOutbound SpotifyOutbound, trackActivityRepo trackActivitiesRepository) *service {
-	return &service{spotifyOutbound: SpotifyOutbound, trackActivityRepo: trackActivityRepo}
+func NewService(spotifyOutbound spotifyOutbound, trackActivitiesRepo trackActivitiesRepository) *service {
+	return &service{spotifyOutbound: spotifyOutbound, trackActivitiesRepo: trackActivitiesRepo}
 }

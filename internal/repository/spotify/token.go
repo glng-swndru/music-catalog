@@ -16,7 +16,7 @@ type SpotifyTokenResponse struct {
 	ExpiresIn   int    `json:"expires_in"`
 }
 
-func (o *outbond) GetTokenDetails() (string, string, error) {
+func (o *outbound) GetTokenDetails() (string, string, error) {
 	if o.AccessToken == "" || time.Now().After(o.ExpiredAt) {
 		// call spotify api token here
 		err := o.generateToken()
@@ -27,7 +27,7 @@ func (o *outbond) GetTokenDetails() (string, string, error) {
 	return o.AccessToken, o.TokenType, nil
 }
 
-func (o *outbond) generateToken() error {
+func (o *outbound) generateToken() error {
 	formData := url.Values{}
 	formData.Set("grant_type", "client_credentials")
 	formData.Set("client_id", o.cfg.SpotifyConfig.ClientID)
@@ -37,7 +37,7 @@ func (o *outbond) generateToken() error {
 
 	req, err := http.NewRequest(http.MethodPost, `https://accounts.spotify.com/api/token`, strings.NewReader(encodedURL))
 	if err != nil {
-		log.Error().Err(err).Msg("failed to create request for Spotify token")
+		log.Error().Err(err).Msg("error create request for spotify")
 		return err
 	}
 
@@ -45,7 +45,7 @@ func (o *outbond) generateToken() error {
 
 	resp, err := o.client.Do(req)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to get Spotify token")
+		log.Error().Err(err).Msg("error execute request for spotify")
 		return err
 	}
 	defer resp.Body.Close()
@@ -53,7 +53,8 @@ func (o *outbond) generateToken() error {
 	var response SpotifyTokenResponse
 	err = json.NewDecoder(resp.Body).Decode(&response)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to decode Spotify token response")
+		log.Error().Err(err).Msg("error unmarshal response from spotify")
+		return err
 	}
 
 	o.AccessToken = response.AccessToken

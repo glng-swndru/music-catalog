@@ -90,7 +90,7 @@ func Test_service_UpsertTrackActivities(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockFn(tt.args)
 			s := &service{
-				trackActivityRepo: mockTrackActivityRepo,
+				trackActivitiesRepo: mockTrackActivityRepo,
 			}
 			if err := s.UpsertTrackActivities(context.Background(), tt.args.userID, tt.args.request); (err != nil) != tt.wantErr {
 				t.Errorf("service.UpsertTrackActivities() error = %v, wantErr %v", err, tt.wantErr)

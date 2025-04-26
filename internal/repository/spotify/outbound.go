@@ -7,7 +7,7 @@ import (
 	"github.com/glng-swndru/music-catalog/pkg/httpclient"
 )
 
-type outbond struct {
+type outbound struct {
 	cfg         *configs.Config
 	client      httpclient.HTTPClient
 	AccessToken string
@@ -15,8 +15,8 @@ type outbond struct {
 	ExpiredAt   time.Time
 }
 
-func NewSpotifyOutbond(cfg *configs.Config, client httpclient.HTTPClient) *outbond {
-	return &outbond{
+func NewSpotifyOutbound(cfg *configs.Config, client httpclient.HTTPClient) *outbound {
+	return &outbound{
 		cfg:    cfg,
 		client: client,
 	}

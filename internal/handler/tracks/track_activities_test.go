@@ -58,7 +58,7 @@ func TestHandler_UpsertTrackActivities(t *testing.T) {
 				Engine:  api,
 				service: mockSvc,
 			}
-			h.RegisterRoutes()
+			h.RegisterRoute()
 			w := httptest.NewRecorder()
 			endpoint := `/tracks/track-activity`
 

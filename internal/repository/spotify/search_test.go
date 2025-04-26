@@ -54,8 +54,8 @@ func Test_outbond_Search(t *testing.T) {
 					Items: []SpotifyTrackObject{
 						{
 							Album: SpotifyAlbumObject{
-								AlbumType:  "album",
-								TotalTrack: 22,
+								AlbumType:   "album",
+								TotalTracks: 22,
 								Images: []SpotifyAlbumImage{
 									{
 										URL: "https://i.scdn.co/image/ab67616d0000b273e8b066f70c206551210d902b",
@@ -82,8 +82,8 @@ func Test_outbond_Search(t *testing.T) {
 						},
 						{
 							Album: SpotifyAlbumObject{
-								AlbumType:  "compilation",
-								TotalTrack: 17,
+								AlbumType:   "compilation",
+								TotalTracks: 17,
 								Images: []SpotifyAlbumImage{
 									{
 										URL: "https://i.scdn.co/image/ab67616d0000b273bb19d0c22d5709c9d73c8263",
@@ -163,7 +163,7 @@ func Test_outbond_Search(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.mockFn(tt.args)
-			o := &outbond{
+			o := &outbound{
 				cfg:         &configs.Config{},
 				client:      mockHTTPClient,
 				AccessToken: "accessToken",

@@ -62,7 +62,7 @@ func TestHandler_Login(t *testing.T) {
 				Engine:  api,
 				service: mockSvc,
 			}
-			h.RegisterRoutes()
+			h.RegisterRoute()
 			w := httptest.NewRecorder()
 			endpoint := `/memberships/login`
 			model := memberships.LoginRequest{

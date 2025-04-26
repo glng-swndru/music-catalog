@@ -10,7 +10,7 @@ import (
 )
 
 func (s *service) UpsertTrackActivities(ctx context.Context, userID uint, request trackactivities.TrackActivityRequest) error {
-	activity, err := s.trackActivityRepo.Get(ctx, userID, request.SpotifyID)
+	activity, err := s.trackActivitiesRepo.Get(ctx, userID, request.SpotifyID)
 	if err != nil && err != gorm.ErrRecordNotFound {
 		log.Error().Err(err).Msg("error get record from database")
 		return err
@@ -18,7 +18,7 @@ func (s *service) UpsertTrackActivities(ctx context.Context, userID uint, reques
 	if err == gorm.ErrRecordNotFound || activity == nil {
 		// create record activity
 
-		err = s.trackActivityRepo.Create(ctx, trackactivities.TrackActivity{
+		err = s.trackActivitiesRepo.Create(ctx, trackactivities.TrackActivity{
 			UserID:    userID,
 			SpotifyID: request.SpotifyID,
 			IsLiked:   request.IsLiked,
@@ -32,7 +32,7 @@ func (s *service) UpsertTrackActivities(ctx context.Context, userID uint, reques
 		return nil
 	}
 	activity.IsLiked = request.IsLiked
-	err = s.trackActivityRepo.Update(ctx, *activity)
+	err = s.trackActivitiesRepo.Update(ctx, *activity)
 
 	if err != nil {
 		log.Error().Err(err).Msg("error update record to database")

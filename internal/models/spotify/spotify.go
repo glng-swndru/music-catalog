@@ -8,18 +8,22 @@ type SearchResponse struct {
 }
 
 type SpotifyTrackObject struct {
-	// album related field
-	AlbumType       string   `json:"albumType"`
-	AlbumTotalTrack int      `json:"totaTrack"`
-	AlbumImagesURL  []string `json:"albumImagesURL"`
-	AlbumName       string   `json:"albumName"`
+	// album related fields
+	AlbumType        string   `json:"albumType"`
+	AlbumTotalTracks int      `json:"TotalTrackss"`
+	AlbumImagesURL   []string `json:"albumImagesURL"`
+	AlbumName        string   `json:"albumName"`
 
-	// artist related field
-	ArtistName []string `json:"artistName"`
+	// artist related fields
+	ArtistsName []string `json:"artistsName"`
 
-	// track related field
+	// track related fields
 	Explicit bool   `json:"explicit"`
 	ID       string `json:"id"`
 	Name     string `json:"name"`
 	IsLiked  *bool  `json:"isLiked"`
+}
+
+type RecommendationResponse struct {
+	Items []SpotifyTrackObject `json:"items"`
 }
