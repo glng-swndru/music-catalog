@@ -1,34 +1,47 @@
-# Music Catalog
+# 🎧 Music Catalog
 
-**Music Catalog** is a Go-based web application that allows users to manage music preferences, track activity, and interact with the Spotify API. It provides user authentication, track activity management, and Spotify track search.
+[![Go Version](https://img.shields.io/badge/Go-1.20%2B-blue)](https://golang.org)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
----
-
-## 🚀 Features
-
-- **User Management**: Register, log in, and manage user accounts.
-- **Track Activities**: Like/dislike tracks and save user-specific track activities.
-- **Spotify Integration**: Search for tracks using Spotify's API. Get personalized track recommendations.
-- **Database Integration**: Uses PostgreSQL for data persistence.
-- **RESTful API**: Provides endpoints for client interaction.
+**Music Catalog** is a Go-based web API that lets users manage music preferences, track activities, and interact with Spotify. It supports user authentication, personalized recommendations, and integrates with PostgreSQL and Spotify APIs.
 
 ---
 
-## 🗂️ Project Structure
+## ✨ Features
+
+- 🔐 **User Authentication** – Sign up & log in using JWT-based tokens.
+- 🎵 **Spotify Integration** – Search and get personalized track recommendations.
+- ❤️ **Track Activities** – Like/dislike tracks and store user interactions.
+- 🗄️ **PostgreSQL Support** – Store users, track activity, and tokens.
+- 🌐 **RESTful API** – Clean and modular API architecture.
+
+---
+
+## 📁 Project Structure
 
 ```text
-cmd/
-  └── main.go                  # Application entry point
-internal/
-  └── configs/                # Configuration management
-  └── handler/                # HTTP handlers for API endpoints
-  └── models/                 # Data models
-  └── repository/             # Database and API repository
-  └── service/                # Business logic layer
-pkg/
-  └── httpclient/             # HTTP client utilities
-internalsql/
-  └── (files)                 # Database connection utilities
+├── cmd/                            # Application entry point
+├── internal/
+│   ├── configs/                    # Application configuration (YAML)
+│   ├── handler/                    # HTTP handlers (controllers)
+│   │   ├── memberships/            # Handlers for user registration and login
+│   │   └── tracks/                 # Handlers for track features
+│   ├── middleware/                 # Middleware (auth, logging, etc.)
+│   ├── models/                     # Domain models
+│   │   ├── memberships/            # User models
+│   │   ├── spotify/                # Spotify track models
+│   │   └── trackactivities/        # User activity models
+│   ├── repository/                 # Data access logic
+│   │   ├── memberships/            # DB operations for users
+│   │   ├── spotify/                # External API calls to Spotify
+│   │   └── trackactivities/        # DB operations for activities
+│   └── service/                    # Business logic layer
+│       ├── memberships/            # Membership logic
+│       └── tracks/                 # Track handling logic
+└── pkg/
+    ├── httpclient/                 # HTTP client for external services
+    ├── internalsql/                # PostgreSQL connection utilities
+    └── jwt/                        # JWT generation and validation
 ```
 
 ---
@@ -37,7 +50,7 @@ internalsql/
 
 - Go 1.20 or later
 - Docker (for running the PostgreSQL database)
-- Spotify API credentials (Client ID & Client Secret)
+- Spotify Developer Account (Client ID & Secret)
 
 ---
 
@@ -56,7 +69,7 @@ internalsql/
    cp internal/configs/config.example.yaml internal/configs/config.yaml
    ```
 
-   Update the database connection string and Spotify API credentials in `config.yaml`.
+   Edit `config.yaml` with your DB credentials and Spotify API keys.
 
 3. **Start PostgreSQL with Docker:**
 
@@ -76,7 +89,7 @@ internalsql/
    make run
    ```
 
-   The application will run on the port specified in the config file (default: `:9999`).
+   App runs on `localhost:9999` (or the port defined in config).
 
 ---
 
@@ -87,7 +100,8 @@ internalsql/
 - **Sign Up**  
   `POST /memberships/sign_up`
 
-  **Request Body:**
+  **Request:**
+
   ```json
   {
     "email": "user@example.com",
@@ -97,6 +111,7 @@ internalsql/
   ```
 
   **Response:**
+
   ```json
   {
     "accessToken": "jwt-token"
@@ -106,7 +121,8 @@ internalsql/
 - **Login**  
   `POST /memberships/login`
 
-  **Request Body:**
+  **Request:**
+
   ```json
   {
     "email": "user@example.com",
@@ -122,6 +138,7 @@ internalsql/
   `GET /tracks/search`
 
   **Query Parameters:**
+
   - `query`: Search keyword (e.g., "Bohemian Rhapsody")
   - `pageSize`: Number of results per page (default: 10)
   - `pageIndex`: Page number (default: 1)
@@ -132,6 +149,7 @@ internalsql/
   `POST /tracks/track-activity`
 
   **Request Body:**
+
   ```json
   {
     "spotifyID": "track-id",

@@ -22,3 +22,5 @@ go.work.sum
 .env
 /internal/configs/config.yaml
 
+directory.txt
+struktur.txt
